@@ -4,6 +4,18 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+const observer = window.ResizeObserver;
+window.ResizeObserver = class ResizeObserver extends observer {
+    constructor(callback) {
+        super((entries, observer) => {
+            window.requestAnimationFrame(() => {
+                if (!Array.isArray(entries) || !entries.length) return;
+                callback(entries, observer);
+            });
+        });
+    }
+};
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
