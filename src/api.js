@@ -1,4 +1,4 @@
-const BASE = 'http://localhost:8080';
+const BASE = 'https://codequeue-production.up.railway.app';
 
 export async function getProblems() {
     const r = await fetch(`${BASE}/problems`);
