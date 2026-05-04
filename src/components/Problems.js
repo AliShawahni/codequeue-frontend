@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getProblems, getAttempts, getReviewQueue, updateAttempt, deleteAttempt } from '../api';
+import { getProblems, getAttempts, getReviewQueue, updateAttempt, deleteAttempt, logAttempt } from '../api';
 import AttemptModal from './AttemptModal';
 
 const DIFFS = ['ALL', 'EASY', 'MEDIUM', 'HARD'];
@@ -116,7 +116,6 @@ export default function Problems() {
                             {expanded === p.id && (
                                 <div style={{padding:'12px 18px 16px',background:'var(--bg3)',borderRadius:'0 0 10px 10px',marginTop:'-8px',marginBottom:'4px',border:'1px solid var(--border)',borderTop:'none'}}>
 
-                                    {/* Problem Notes */}
                                     <div style={{marginBottom:'16px',padding:'12px',background:'var(--bg2)',borderRadius:'8px',border:'1px solid var(--border)'}}>
                                         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom: editingProblemNotes === p.id || p.notes ? '10px' : '0'}}>
                                             <span style={{fontSize:'12px',fontWeight:'700',color:'var(--muted)',textTransform:'uppercase',letterSpacing:'0.5px'}}>Problem Notes</span>
@@ -139,7 +138,6 @@ export default function Problems() {
                                         )}
                                     </div>
 
-                                    {/* Attempts */}
                                     <div style={{fontSize:'12px',fontWeight:'700',color:'var(--muted)',textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:'10px'}}>Attempts</div>
                                     {attempts.length === 0 ? (
                                         <div style={{fontSize:'13px',color:'var(--muted)',padding:'8px 0'}}>No attempts yet.</div>
@@ -200,7 +198,19 @@ export default function Problems() {
             )}
 
             {selected && (
-                <AttemptModal problem={selected} onClose={() => setSelected(null)} onSaved={() => setSelected(null)} />
+                <AttemptModal
+                    problem={selected}
+                    onClose={() => setSelected(null)}
+                    onSubmit={async (attemptData) => {
+                        await logAttempt(selected.id, { ...attemptData, date: new Date().toISOString().split('T')[0] });
+                        setAttemptedIds(prev => new Set([...prev, selected.id]));
+                        if (expanded === selected.id) {
+                            const a = await getAttempts(selected.id);
+                            setAttempts(a);
+                        }
+                        setSelected(null);
+                    }}
+                />
             )}
         </div>
     );
