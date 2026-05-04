@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getReviewQueue } from '../api';
+import { getReviewQueue, logAttempt } from '../api';
 import AttemptModal from './AttemptModal';
 
 export default function Review() {
@@ -15,6 +15,15 @@ export default function Review() {
     }
 
     useEffect(() => { load(); }, []);
+
+    async function handleSubmit(attemptData) {
+        await logAttempt(selected.id, {
+            ...attemptData,
+            date: new Date().toISOString().split('T')[0],
+        });
+        setSelected(null);
+        load();
+    }
 
     return (
         <div>
@@ -44,17 +53,16 @@ export default function Review() {
                     <div className="problem-list">
                         {problems.map((p, i) => (
                             <div key={p.id} className="problem-row" onClick={() => setSelected(p)}>
-                <span className="problem-num" style={{ color: i === 0 ? 'var(--hard)' : i < 3 ? 'var(--medium)' : undefined }}>
-                  #{i + 1}
-                </span>
+                                <span className="problem-num" style={{ color: i === 0 ? 'var(--hard)' : i < 3 ? 'var(--medium)' : undefined }}>
+                                    #{i + 1}
+                                </span>
                                 <span className="problem-num" style={{ color: 'var(--muted)' }}>·{p.leetcodeId}</span>
                                 <span className="problem-title">{p.title}</span>
                                 <span className="problem-topic">{p.topic}</span>
                                 <span className={"diff-badge diff-" + p.difficulty}>{p.difficulty}</span>
-
                                 <a href={p.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{color:'var(--accent)',textDecoration:'none'}}>open</a>
                             </div>
-                            ))}
+                        ))}
                     </div>
                 </>
             )}
@@ -63,7 +71,7 @@ export default function Review() {
                 <AttemptModal
                     problem={selected}
                     onClose={() => setSelected(null)}
-                    onSaved={() => { setSelected(null); load(); }}
+                    onSubmit={handleSubmit}
                 />
             )}
         </div>

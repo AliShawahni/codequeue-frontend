@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getDiscoverQueue } from '../api';
+import { getDiscoverQueue, logAttempt } from '../api';
 import AttemptModal from './AttemptModal';
 
 export default function Discover() {
@@ -15,6 +15,15 @@ export default function Discover() {
     }
 
     useEffect(() => { load(); }, []);
+
+    async function handleSubmit(attemptData) {
+        await logAttempt(selected.id, {
+            ...attemptData,
+            date: new Date().toISOString().split('T')[0],
+        });
+        setSelected(null);
+        load();
+    }
 
     return (
         <div>
@@ -45,10 +54,9 @@ export default function Discover() {
                                 <span className="problem-title">{p.title}</span>
                                 <span className="problem-topic">{p.topic}</span>
                                 <span className={"diff-badge diff-" + p.difficulty}>{p.difficulty}</span>
-
                                 <a href={p.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{color:'var(--accent)',textDecoration:'none'}}>open</a>
                             </div>
-                            ))}
+                        ))}
                     </div>
                     <div style={{ marginTop: '16px', textAlign: 'center' }}>
                         <button className="btn btn-secondary" onClick={load} style={{ marginTop: '8px' }}>
@@ -62,7 +70,7 @@ export default function Discover() {
                 <AttemptModal
                     problem={selected}
                     onClose={() => setSelected(null)}
-                    onSaved={() => { setSelected(null); load(); }}
+                    onSubmit={handleSubmit}
                 />
             )}
         </div>
