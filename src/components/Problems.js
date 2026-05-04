@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getProblems, getAttempts, getReviewQueue, updateNotes, updateAttempt, deleteAttempt } from '../api';
+import { getProblems, getAttempts, getReviewQueue, updateAttempt, deleteAttempt } from '../api';
 import AttemptModal from './AttemptModal';
 
 const DIFFS = ['ALL', 'EASY', 'MEDIUM', 'HARD'];
